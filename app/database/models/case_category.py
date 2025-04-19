@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import relationship
 
 from app.database.base import Base
 
@@ -12,8 +13,9 @@ class CaseCategory(Base):
     id = Column(Integer, autoincrement=True, primary_key=True, unique=True, comment='суррогатный ключ')
     category_id = Column(Integer, ForeignKey('category.id', ondelete='CASCADE'), nullable=False, comment='категория дела')
     case_id = Column(Integer, ForeignKey('case.id', ondelete='CASCADE'), nullable=False, comment='идентификтор карточки дела')
-    
-    
+
+    category = relationship('Category', back_populates='case_categories')
+    case = relationship('Case', back_populates='case_categories')
 
     
 

@@ -1,16 +1,16 @@
-from sqlalchemy import Column, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, ForeignKey, DateTime, UniqueConstraint
 from sqlalchemy.sql import func
 
 from app.database.base import Base
 
 
 class Notification(Base):
-    __tablename__ = 'notification'
-    
-    id = Column(Integer, autoincrement=True, primary_key=True, comment='идентификтор уведомления')
-    user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), comment='идентификтор пользователя')
-    event_id = Column(Integer, ForeignKey('case_event.id', ondelete='CASCADE'), comment='идентификтор события')
-    created_at = Column(DateTime, server_default=func.now(), comment='дата отправки уведомления пользователю')
-    
+	__tablename__ = 'notification'
+	__table_args__ = (
+		UniqueConstraint('user_id', 'event_id', name='uq_user_event'),
+	)
 
-    
+	id = Column(Integer, autoincrement=True, primary_key=True, comment='идентификтор уведомления')
+	user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), comment='идентификтор пользователя')
+	event_id = Column(Integer, ForeignKey('case_event.id', ondelete='CASCADE'), comment='идентификтор события')
+	sent_at = Column(DateTime, server_default=func.now(), comment='дата отправки уведомления пользователю')
