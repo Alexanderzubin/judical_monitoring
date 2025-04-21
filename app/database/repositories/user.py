@@ -43,39 +43,4 @@ class UserRepository:
         user = self.session.query(User).filter(User.id == user_id).first()
         return user
         
-        
     
-    
-
-
-    
-
-
-    
-
-
-    
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-    def get_user(self, user_id: int) -> User | None:
-        """Получить пользователя по ID"""
-        return self.db.query(User).filter(User.id == user_id).first()
-    
-
-    
-repa=UserRepository()
-get=repa.get_user(1)
-print(get)
