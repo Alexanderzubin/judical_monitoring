@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
+
 from app.database.base import Base
 
 
@@ -18,7 +19,5 @@ class CaseCategory(Base):
     # relationship
     category = relationship('Category', back_populates='case_categories')
     case = relationship('Case', back_populates='case_categories')
-
     
-
 

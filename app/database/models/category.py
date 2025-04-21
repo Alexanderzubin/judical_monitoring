@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from  sqlalchemy.orm import relationship
-
+from sqlalchemy.orm import relationship
 from app.database.base import Base
 
 
@@ -18,7 +17,4 @@ class Category(Base):
         secondary='case_category',
         back_populates='categories'
     )
-    
-
-
     

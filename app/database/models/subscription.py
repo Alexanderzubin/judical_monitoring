@@ -12,8 +12,3 @@ class Subscription(Base):
     id = Column(Integer, autoincrement=True, primary_key=True, comment='идентификтор подписки')
     user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), comment='идентификтор пользователя')
     case_id = Column(Integer, ForeignKey('case.id', ondelete='CASCADE'), comment='идентификтор карточки дела')
-
-    
-
-
-    

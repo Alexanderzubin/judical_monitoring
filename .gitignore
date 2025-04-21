@@ -175,4 +175,5 @@ cython_debug/
 .pypirc
 
 data/
-app/database/repositories.py
+local/
+
