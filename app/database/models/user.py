@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import relationship
-from app.database.models.case import Case
+from sqlalchemy import Column, Integer, String
+# from app.database.models.case import Case
+from sqlalchemy.orm import relationship, Mapped
 from app.database.base import Base
 
 
@@ -14,14 +14,15 @@ class User(Base):
     last_name = Column(String(255), comment='фамилия пользователя')
     username = Column(String(255), comment='логин пользователя в telegram')
     chat_id = Column(Integer, comment='идентификтор чата с пользователем')
-    case_subscriptions = relationship(Case, secondary ='subscription')
+    
+  
 
     # relationship
+    case_subscriptions = relationship('Case', secondary ='subscription')
     notifications = relationship('Notification', back_populates='user')
     events = relationship(
 		'CaseEvent',
 		secondary='notification',
-		back_populates='users'
 	)
 
     def __repr__(self):

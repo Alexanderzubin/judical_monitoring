@@ -16,7 +16,7 @@ class CaseEvent(Base):
 	date_of_placement = Column(Date, comment='дата размещения события')
 	case_id = Column(Integer, ForeignKey('case.id', ondelete='CASCADE'), nullable=False,
 					 comment='идентификатор карточки дела')
-	# relationship
+	# # relationship
 	case = relationship('Case', back_populates='events')
 	notifications = relationship('Notification', back_populates='event')
 	users = relationship(

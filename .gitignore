@@ -175,6 +175,5 @@ cython_debug/
 .pypirc
 
 data/
-local/
 *DS_Store
-
+sbx.py

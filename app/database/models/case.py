@@ -14,13 +14,14 @@ class Case(Base):
     judge_id = Column(Integer, ForeignKey('judge.id', ondelete='RESTRICT'), nullable=False, index=True, comment='идентификатор судьи')
     name_of_the_court = Column(String(255), comment='наименование суда')
     date_of_receipt = Column(Date, comment='дата размещения')
-    url = Column(String, unique=True, nullable=False, comment='URL дела')
+    url = Column(String, unique=True, nullable=False, index=True, comment='URL дела')
     court_id = Column(Integer, ForeignKey('court.id', ondelete='RESTRICT', ), nullable=False, index=True,
 					  comment='идентификатор суда')
 
 
 	# relationship
-    judge = relationship('Judge', back_populates='cases')
+    judge = relationship('app.database.models.judge.Judge', back_populates='cases')
+    judge = relationship('app.database.models.judge.Judge', back_populates='cases')
     case_categories = relationship('CaseCategory', back_populates='case')
     categories = relationship(
 		'Category',
@@ -29,3 +30,5 @@ class Case(Base):
 	)
     court = relationship('Court', back_populates='cases')
     events = relationship('CaseEvent', back_populates='case')
+
+

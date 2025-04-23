@@ -9,8 +9,7 @@ class Notification(Base):
 	"""Модель уведомлений"""
 	__tablename__ = 'notification'
     
-	__table_args__ = (
-		UniqueConstraint('user_id', 'event_id', name='uq_user_event'),)
+	__table_args__ = (UniqueConstraint('user_id', 'event_id', name='uq_user_event'),)
 	id = Column(Integer, autoincrement=True, primary_key=True, comment='идентификтор уведомления')
 	user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), nullable=False, comment='идентификтор пользователя')
 	event_id = Column(Integer, ForeignKey('case_event.id', ondelete='CASCADE'), nullable=False, comment='идентификтор события')
