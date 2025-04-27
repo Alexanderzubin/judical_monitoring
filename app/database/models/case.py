@@ -1,28 +1,24 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
 from app.database.base import Base
-from app.database.models.court import Court
 from sqlalchemy.orm import relationship
 
 
 class Case(Base):
     """Модель судебного дела"""
     __tablename__ = 'case'
+    str_columns = ('number', 'court_id')
 
-    id = Column(Integer, autoincrement=True, primary_key=True, unique=True, comment='идентификтор карточки дела')
-    number = Column(String(255), comment='номер дела')
+    id = Column(Integer, autoincrement=True, nullable=False, primary_key=True, unique=True, comment='идентификтор карточки дела')
+    number = Column(String(255), nullable=False, comment='номер дела')
     unique_identifier = Column(String(255), unique=True, nullable=False, comment='уникальный идентификатор дела')
     judge_id = Column(Integer, ForeignKey('judge.id', ondelete='RESTRICT'), nullable=False, index=True, comment='идентификатор судьи')
-    name_of_the_court = Column(String(255), comment='наименование суда')
-    date_of_receipt = Column(Date, comment='дата размещения')
+    date_of_receipt = Column(Date, nullable=False, comment='дата размещения')
     url = Column(String, unique=True, nullable=False, index=True, comment='URL дела')
     court_id = Column(Integer, ForeignKey('court.id', ondelete='RESTRICT', ), nullable=False, index=True,
 					  comment='идентификатор суда')
 
-
 	# relationship
-    judge = relationship('app.database.models.judge.Judge', back_populates='cases')
-    judge = relationship('app.database.models.judge.Judge', back_populates='cases')
-    case_categories = relationship('CaseCategory', back_populates='case')
+    judge = relationship('Judge', back_populates='cases')
     categories = relationship(
 		'Category',
 		secondary='case_category',

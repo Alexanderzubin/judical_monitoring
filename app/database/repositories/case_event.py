@@ -1,20 +1,17 @@
 from sqlalchemy.orm import Session
 from app.database.models.case_event import CaseEvent
-from typing import Callable, TypeAlias
+from app.database.models.case import Case
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 from datetime import date, time
+from app.database.repositories.exceptions import CaseEventError
 
-SessionFactory: TypeAlias = Callable[[], Session]
 
 class CaseEventRepository():
 
-    def __init__(self, session: SessionFactory, logger: logging.Logger):
-        self.session = session()
+    def __init__(self, session: Session, logger: logging.Logger):
+        self.session = session
         self.logger = logger
-    
-    def __del__(self):
-        self.session.close()
 
     def create(
         self,
@@ -24,8 +21,8 @@ class CaseEventRepository():
         result: str,
         the_basic_for_the_selected_result: str,
         date_of_placement: date,
-        case_id: int
-    ) -> CaseEvent | None:
+        case: Case
+    ) -> CaseEvent:
 
         try:
             new_event = CaseEvent(
@@ -35,7 +32,7 @@ class CaseEventRepository():
                 result=result,
                 the_basic_for_the_selected_result=the_basic_for_the_selected_result,
                 date_of_placement=date_of_placement,
-                case_id=case_id
+                case=case
             )
             self.session.add(new_event)
             self.session.commit()
@@ -44,8 +41,9 @@ class CaseEventRepository():
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while creating case event: {exc}')
+            raise CaseEventError('Ошибка создания события')
 
-    def update(self, case_event: CaseEvent) -> bool | None:
+    def update(self, case_event: CaseEvent) -> bool:
         
         try:
            self.session.query(CaseEvent).filter(CaseEvent.id == case_event.id).update(case_event.as_dict())
@@ -55,6 +53,7 @@ class CaseEventRepository():
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while updating case event: {exc}')
+            raise CaseEventError('Ошибка обновления события')
 
 
 

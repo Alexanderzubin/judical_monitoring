@@ -1,22 +1,16 @@
 from sqlalchemy.orm import Session
 from app.database.models.court import Court
-from typing import Callable, TypeAlias
 from sqlalchemy.exc import SQLAlchemyError
 import logging
-
-SessionFactory: TypeAlias = Callable[[], Session]
-
+from app.database.repositories.exceptions import CourtError
 
 class Courtepository:
 
-    def __init__(self, session: SessionFactory, logger: logging.Logger):
-       self.session = session()
+    def __init__(self, session: Session, logger: logging.Logger):
+       self.session = session
        self.logger = logger
 
-    def __del__(self):
-        self.session.close()
-
-    def create(self, name: str) -> Court | None:
+    def create(self, name: str) -> Court:
  
         try:
             new_court = Court(name=name)
@@ -27,6 +21,8 @@ class Courtepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while creating court: {exc}')
+            raise CourtError('Ошибка создания суда')
+            
         
     def get_by_name(self, court_name: str) -> Court | None:
 
@@ -37,4 +33,5 @@ class Courtepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while get court by name: {exc}')
+            raise CourtError('Ошибка получения суда по наименованию')
 

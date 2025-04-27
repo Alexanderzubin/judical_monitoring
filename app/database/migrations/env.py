@@ -21,16 +21,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from app.database.models.user import User
-from app.database.models.case import Case
-from app.database.models.category import Category
-from app.database.models.judge import Judge
-from app.database.models.court import Court
-from app.database.models.notification import Notification
-from app.database.models.subscription import Subscription
-from app.database.models.case_event import CaseEvent
-from app.database.models.case_category import CaseCategory
-# ПРИ СОЗДАНИИ НОВЫХ МОДЕЛЕК, ТУТ НУЖНО ИХ ТАКЖЕ ПРОИМПОРТИРОВАТЬ
+from app.database.models import *
 from app.database.base import Base
 target_metadata = [
     Base.metadata

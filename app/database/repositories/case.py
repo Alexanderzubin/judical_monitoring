@@ -1,42 +1,40 @@
 from sqlalchemy.orm import Session
 from app.database.models.case import Case
-from typing import Callable, TypeAlias
+from app.database.models.judge import Judge
+from app.database.models.court import Court
+from app.database.models.category import Category
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 from datetime import date
-
-SessionFactory: TypeAlias = Callable[[], Session]
+from app.database.repositories.exceptions import CaseError
 
 
 class CaseRepository:
 
-    def __init__(self, session: SessionFactory, logger: logging.Logger):
-       self.session = session()
+    def __init__(self, session: Session, logger: logging.Logger):
+       self.session = session
        self.logger = logger
-
-    def __del__(self):
-        self.session.close()
 
     def create(
             self,
             number: str,
             unique_identifier: str,
-            judge_id: int,
-            name_of_the_court: str,
+            judge: Judge,
             date_of_receipt: date,
             url: str,
-            court_id: int
-        ) -> Case | None:
+            court: Court,
+            categories: list[Category]
+        ) -> Case:
 
         try:
             new_case = Case(
                 number=number,
                 unique_identifier=unique_identifier,
-                judge_id=judge_id,
-                name_of_the_court=name_of_the_court,
+                judge=judge,
                 date_of_receipt=date_of_receipt,
                 url=url,
-                court_id=court_id
+                court=court,
+                categories=categories
             )
 
             self.session.add(new_case)
@@ -46,8 +44,9 @@ class CaseRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while creating case: {exc}')
+            raise CaseError('Ошибка создания дела')
 
-    def update(self, case: Case) -> Case | None:
+    def update(self, case: Case) -> bool:
         
         try:
            self.session.query(Case).filter(Case.id == case.id).update(case.as_dict())
@@ -57,6 +56,7 @@ class CaseRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while updating case: {exc}')
+            raise CaseError('Ошибка обновления дела')
 
     def get_by_id(self, case_id: int) -> Case | None:
         
@@ -67,6 +67,7 @@ class CaseRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while get case by id: {exc}')
+            raise CaseError('Ошибка получения дела по id')
 
     def get_by_url(self, url: str) -> Case | None:
         
@@ -77,6 +78,7 @@ class CaseRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while get case by url: {exc}')
+            raise CaseError('Ошибка получения дела по url')
 
     
     

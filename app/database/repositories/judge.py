@@ -1,22 +1,16 @@
 from sqlalchemy.orm import Session
 from app.database.models.judge import Judge
-from typing import Callable, TypeAlias
 from sqlalchemy.exc import SQLAlchemyError
 import logging
-
-SessionFactory: TypeAlias = Callable[[], Session]
-
+from app.database.repositories.exceptions import JudgeError
 
 class JudgeRepository:
 
-    def __init__(self, session: SessionFactory, logger: logging.Logger):
-       self.session = session()
+    def __init__(self, session: Session, logger: logging.Logger):
+       self.session = session
        self.logger = logger
 
-    def __del__(self):
-        self.session.close()
-
-    def create(self, name: str) -> Judge | None:
+    def create(self, name: str) -> Judge:
  
         try:
             new_judge = Judge(name=name)
@@ -27,6 +21,7 @@ class JudgeRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while creating judge: {exc}')
+            raise JudgeError('Ошибка создания судьи')
         
     def get_by_name(self, judge_name: str) -> Judge | None:
 
@@ -37,4 +32,5 @@ class JudgeRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while get judge by name: {exc}')
+            raise JudgeError('Ошибка получения судьи по ФИО')
 

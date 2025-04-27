@@ -16,8 +16,3 @@ class CaseCategory(Base):
     category_id = Column(Integer, ForeignKey('category.id', ondelete='CASCADE'), nullable=False, comment='категория дела')
     case_id = Column(Integer, ForeignKey('case.id', ondelete='CASCADE'), nullable=False, comment='идентификтор карточки дела')
 
-    # relationship
-    category = relationship('Category', back_populates='case_categories')
-    case = relationship('Case', back_populates='case_categories')
-    
-

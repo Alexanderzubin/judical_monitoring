@@ -1,20 +1,14 @@
 from sqlalchemy.orm import Session
 from app.database.models.user import User
-from typing import Callable, TypeAlias
 from sqlalchemy.exc import SQLAlchemyError
 import logging
-
-SessionFactory: TypeAlias = Callable[[], Session]
-
+from app.database.repositories.exceptions import UserError
 
 class UserRepository:
 
-    def __init__(self, session: SessionFactory, logger: logging.Logger):
-       self.session = session()
+    def __init__(self, session: Session, logger: logging.Logger):
+       self.session = session
        self.logger = logger
-
-    def __del__(self):
-        self.session.close()
 
     def create(
         self, tg_id: int,
@@ -22,7 +16,7 @@ class UserRepository:
         last_name: str,
         user_name: str,
         chat_id: int
-    ) -> User | None:
+    ) -> User:
  
         try:
             new_user = User(
@@ -39,8 +33,9 @@ class UserRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while creating user: {exc}')
+            raise UserError('Ошибка создания пользователя')
         
-    def delete(self, user_id: int) -> bool | None:
+    def delete(self, user_id: int) -> bool:
        
         try:
             user = self.session.query(User).filter(User.id == user_id).first()
@@ -52,6 +47,7 @@ class UserRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while deleting user: {exc}')
+            raise UserError('Ошибка удаления пользователя')
         
     def get_by_tg_id(self, tg_id: int) -> User | None:
 
@@ -62,4 +58,5 @@ class UserRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while get user by tg id: {exc}')
+            raise UserError('Ошибка получения пользователя по tg id')
 

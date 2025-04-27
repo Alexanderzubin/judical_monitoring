@@ -1,25 +1,20 @@
 from sqlalchemy.orm import Session
 from app.database.models.subscription import Subscription
-from typing import Callable, TypeAlias, List
 from sqlalchemy.exc import SQLAlchemyError
 import logging
-
-SessionFactory: TypeAlias = Callable[[], Session]
+from app.database.repositories.exceptions import SubscriptionError
 
 class SubscriptionRepository:
 
-    def __init__(self, session: SessionFactory, logger: logging.Logger):
-       self.session = session()
+    def __init__(self, session: Session, logger: logging.Logger):
+       self.session = session
        self.logger = logger
-
-    def __del__(self):
-        self.session.close()
 
     def create(
             self,
             user_id: int,
             case_id: int
-    ) -> Subscription | None:
+    ) -> Subscription:
         
         try:
             subscription = Subscription(user_id=user_id, case_id=case_id)
@@ -30,6 +25,7 @@ class SubscriptionRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while creating subscription: {exc}')
+            raise SubscriptionError('Ошибка при создании подписки')
     
     def get_by_id(
             self,
@@ -42,6 +38,7 @@ class SubscriptionRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while get by id subscription: {exc}')
+            raise SubscriptionError('Ошибка получения подписки по id')
     
     def get_by_user_and_case(
             self,
@@ -59,11 +56,12 @@ class SubscriptionRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while get by user and case subscription: {exc}')
+            raise SubscriptionError('Ошибка получения подписки по id пользователя и дела')
     
     def get_user_subscriptions(
             self,
             user_id: int
-    ) -> List[Subscription] | None:
+    ) -> list[Subscription | None]:
         
         try:
             return self.session.query(Subscription)\
@@ -73,6 +71,7 @@ class SubscriptionRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while get user subscriptions: {exc}')
+            raise SubscriptionError('Ошибка получения подписок пользователя')
     
     def count_user_subscriptions(
             self,
@@ -86,3 +85,4 @@ class SubscriptionRepository:
         except SQLAlchemyError as exc:
             self.session.rollback()
             self.logger.error(f'Database error while count user subscription: {exc}')
+            raise SubscriptionError('Ошибка при получении количества подписок пользователя')
