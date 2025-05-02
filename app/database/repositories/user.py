@@ -14,7 +14,7 @@ class UserRepository:
         self, tg_id: int,
         first_name: str,
         last_name: str,
-        user_name: str,
+        username: str,
         chat_id: int
     ) -> User:
  
@@ -23,7 +23,7 @@ class UserRepository:
                 tg_id=tg_id,
                 first_name=first_name,
                 last_name=last_name,
-                user_name=user_name,
+                username=username,
                 chat_id=chat_id
             )
             self.session.add(new_user)

@@ -17,5 +17,5 @@ class Base(DeclarativeBase):
             if col in self.str_columns:
                 columns.append(f'{col}={getattr(self, col)}')
         
-        return f'<{self.__class__.__name__} {', '.join(columns)}>'
+        return f"<{self.__class__.__name__} {', '.join(columns)}>"
     
