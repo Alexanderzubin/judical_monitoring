@@ -1,4 +1,4 @@
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
 def main_menu():
     keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
@@ -24,3 +24,14 @@ def cancel_menu():
     button1 = KeyboardButton('❌ Отмена')
     keyboard.add(button1)
     return keyboard
+
+def generate_unsubscribe_buttons(subscriptions):
+    markup = InlineKeyboardMarkup()
+    for sub in subscriptions:
+        case_number = sub.cases.number
+        button = InlineKeyboardButton(
+            text=case_number,
+            callback_data=f'unsubscribe_{sub.id}'
+        )
+        markup.add(button)
+    return markup

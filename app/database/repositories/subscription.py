@@ -86,3 +86,18 @@ class SubscriptionRepository:
             self.session.rollback()
             self.logger.error(f'Database error while count user subscription: {exc}')
             raise SubscriptionError('Ошибка при получении количества подписок пользователя')
+
+
+    def delete(
+            self,
+            subscription_id: int
+    ) -> None:
+        try:
+            subscription = self.session.query(Subscription).filter(Subscription.id == subscription_id).first()
+            if subscription:
+                self.session.delete(subscription)
+                self.session.commit()
+        except SQLAlchemyError as exc:
+            self.session.rollback()
+            self.logger.error(f'Database error while deleting subscription: {exc}')
+            raise SubscriptionError('Ошибка при удалении подписки')
