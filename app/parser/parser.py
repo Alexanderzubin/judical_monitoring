@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from requests import RequestException
 import logging
 
-url = 'https://krasnodar-prikubansky--krd.sudrf.ru/modules.php?name=sud_delo&srv_num=1&name_op=case&case_id=257838257&case_uid=5c28649b-9910-4493-aede-8e95b89b7061&delo_id=1540005&new='
+url = 'https://krasnodar-prikubansky--krd.sudrf.ru/modules.php?name=sud_delo&srv_num=1&name_op=case&case_id=384936976&case_uid=64d8b43b-d4e0-46ef-8eea-c462678eb94c&delo_id=1540005&new='
 
 headers = {
     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -12,10 +12,11 @@ headers = {
 
 }
 
+logger = logging.getLogger(__name__)
+
 
 class CasePageParse:
     def __init__(self, url: str,
-                 logger: logging.Logger,
                  cookies: dict[str, str] | None = None,
                  proxies: dict[str, str] | None = None,
                  headers: dict[str, str] | None = None):
@@ -23,17 +24,10 @@ class CasePageParse:
         self.cookies = cookies
         self.proxies = proxies
         self.logger = logger
+        self.headers = headers or {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 "
+                                                 "(KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 "}
 
-        if headers is None or headers == {}:
-            self.headers = {
-                'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36(KHTML, like Gecko) "
-                              "Chrome/58.0.3029.110 Safari/537.36 "
-
-            }
-        else:
-            self.headers = headers
-
-    def get_case_data(self):
+    def get_case_data(self) -> dict:
         case_data = {
             'number': None,
             'unique_identifier': None,
@@ -44,31 +38,29 @@ class CasePageParse:
             'categories': None,
         }
 
-        response = self.get_case_page()
+        try:
+            response = self.get_case_page()
 
-        if response:
-            soup = self.convert_response_to_bs4(response)
-            case_data['number'] = self.get_case_number(soup)
-            case_data.update(self.get_case_table(soup))
+            if response:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                case_data['number'] = self.get_case_number(soup)
+                case_data.update(self.get_case_table(soup))
 
-        return case_data
+            return case_data
+
+        except Exception as exc:
+            self.logger.error(f"Ошибка получения данных: {exc}")
+            self.logger.error(traceback.format_exc(limit=3))
 
     def get_case_page(self) -> requests.Response | None:
 
         try:
-            response = requests.get(self.url, headers=self.headers, cookies=self.cookies, proxies=self.proxies)
+            response = requests.get(self.url, headers=self.headers, cookies=self.cookies, proxies=self.proxies, timeout=5)
+            return response
 
-            if response.status_code == 200:
-                return response
-            else:
-                self.logger.warning(f'{response.text}')
-
-        except RequestException as exc:
-            self.logger.error(f'При получении страницы возникла ошибка: {exc}')
-
-    def convert_response_to_bs4(self, response: requests.Response):
-        soup = BeautifulSoup(response.text, 'html.parser')
-        return soup
+        except RequestException:
+            self.logger.exception(f"Ошибка при получении страницы")
+            raise
 
     def get_case_number(self, soup):
 
@@ -76,7 +68,7 @@ class CasePageParse:
         case_number_txt = case_number.text
         return case_number_txt.split()[2]
 
-    def get_case_table(self, soup: BeautifulSoup) -> dict | None:
+    def get_case_table(self, soup: BeautifulSoup) -> dict:
 
         try:
             table = (soup.find('table', {'id': 'tablcont'}) or
@@ -111,7 +103,6 @@ class CasePageParse:
         except Exception as exc:
             self.logger.error(f"Ошибка при парсинге таблицы с карточкой дела: {exc}")
             self.logger.error(traceback.format_exc(limit=3))
-            return None
 
     def get_event_data(self, ):
         event_data = {
@@ -126,7 +117,7 @@ class CasePageParse:
         response = self.get_case_page()
 
         if response:
-            soup = self.convert_response_to_bs4(response)
+            soup = BeautifulSoup(response.text, 'html.parser')
             event_data.update(self.get_event_table(soup))
 
         return event_data
