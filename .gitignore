@@ -178,5 +178,4 @@ data/
 *DS_Store
 sbx.py
 app/parser/test case_data.py
-app/parser/tets event data.py
-app/database/migrations/versions
+app/parser/tets event data.pyq
