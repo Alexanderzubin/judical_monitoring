@@ -55,5 +55,16 @@ class CaseEventRepository():
             self.logger.error(f'Database error while updating case event: {exc}')
             raise CaseEventError('Ошибка обновления события')
 
+    def get_by_id(self, event_id):
+
+        try:
+            event = self.session.query(CaseEvent).filter(CaseEvent.id == event_id).first()
+            return event
+
+        except SQLAlchemyError as exc:
+            self.session.rollback()
+            self.logger.error(f'Database error while get event by id: {exc}')
+            raise CaseEventError('Ошибка получения события по id')
+
 
 
