@@ -1,8 +1,8 @@
-"""init database
+"""'new_bd'
 
-Revision ID: 33f66027a539
+Revision ID: c8dcafa504bc
 Revises: 
-Create Date: 2025-04-27 20:09:18.501956
+Create Date: 2025-05-02 15:56:07.329899
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '33f66027a539'
+revision: str = 'c8dcafa504bc'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -44,11 +44,11 @@ def upgrade() -> None:
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False, comment='идентификтор пользователя'),
-    sa.Column('tg_id', sa.Integer(), nullable=False, comment='индентификтор пользователя в telegram'),
+    sa.Column('tg_id', sa.BigInteger(), nullable=False, comment='индентификтор пользователя в telegram'),
     sa.Column('first_name', sa.String(length=255), nullable=True, comment='имя пользователя'),
     sa.Column('last_name', sa.String(length=255), nullable=True, comment='фамилия пользователя'),
     sa.Column('username', sa.String(length=255), nullable=True, comment='логин пользователя в telegram'),
-    sa.Column('chat_id', sa.Integer(), nullable=False, comment='идентификтор чата с пользователем'),
+    sa.Column('chat_id', sa.BigInteger(), nullable=False, comment='идентификтор чата с пользователем'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('tg_id')
     )
