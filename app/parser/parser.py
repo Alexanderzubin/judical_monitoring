@@ -15,7 +15,7 @@ headers = {
 logger = logging.getLogger(__name__)
 
 
-class CasePageParse:
+class CasePageParser:
     def __init__(self, url: str,
                  cookies: dict[str, str] | None = None,
                  proxies: dict[str, str] | None = None,
