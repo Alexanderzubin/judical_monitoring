@@ -7,3 +7,15 @@ from app.database.models.notification import Notification
 from app.database.models.subscription import Subscription
 from app.database.models.case_event import CaseEvent
 from app.database.models.case_category import CaseCategory
+
+__all__ = [
+    'User',
+    'Case',
+    'Category',
+    'Judge',
+    'Court',
+    'Notification',
+    'Subscription',
+    'CaseEvent',
+    'CaseCategory',
+]

@@ -5,3 +5,19 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12.2"
 dependencies = []
+
+[tool.ruff]
+line-length = 100
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv/*",
+    "*.pyc",
+]
+
+[tool.ruff.format]
+
+quote-style = "single"
+line-ending = "auto"
+indent-style = "space"
+skip-magic-trailing-comma = false

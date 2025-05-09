@@ -5,7 +5,7 @@ from celery.schedules import crontab
 app = Celery(
     'tasks',
     broker='postgresql://postgres:.....@smilingly-amicable-courser.data-1.euc1.tembo.io:5432/postgres',
-    backend='postgresql://postgres:.....@smilingly-amicable-courser.data-1.euc1.tembo.io:5432/postgres'
+    backend='postgresql://postgres:.....@smilingly-amicable-courser.data-1.euc1.tembo.io:5432/postgres',
 )
 
 app.conf.update(
@@ -24,5 +24,4 @@ app.conf.beat_schedule = {
 }
 
 
-
-#СЮДА ИМПОРТИРОВАТЬ ВСЕ ТАСКИ ИЗ МОДУЛЯ tasks
+# СЮДА ИМПОРТИРОВАТЬ ВСЕ ТАСКИ ИЗ МОДУЛЯ tasks

@@ -5,4 +5,3 @@ from app.settings import settings
 engine = create_engine(settings.db.url, echo=settings.debug)
 
 Session = sessionmaker(bind=engine)
-
