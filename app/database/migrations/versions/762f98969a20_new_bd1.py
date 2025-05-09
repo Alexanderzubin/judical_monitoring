@@ -5,10 +5,10 @@ Revises: c8dcafa504bc
 Create Date: 2025-05-03 01:00:16.845516
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.

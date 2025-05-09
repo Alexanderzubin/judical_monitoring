@@ -1,0 +1,109 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: bot:latest
+    container_name: ${COMPOSE_PROJECT_NAME}-telegram-bot
+    volumes:
+      - .:/app
+    restart: always
+    env_file:
+      - .env
+      - .env.docker
+    networks:
+      - app
+    depends_on:
+      - redis
+      - postgres
+      - migrator
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ${COMPOSE_PROJECT_NAME}-postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+      - PGDATA='/var/lib/postgresql/data/pgdata'
+    ports:
+      - "5432:5432"
+    networks:
+      - app
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME}-redis
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "6379:6379"
+    networks:
+      - app
+    volumes:
+      - redis-data:/bitnami/redis/data
+    command: /bin/sh -c 'if [ -n "$REDIS_PASS" ]; then redis-server --requirepass "$REDIS_PASS"; else redis-server; fi'
+
+  migrator:
+    image: bot:latest
+    container_name: ${COMPOSE_PROJECT_NAME}-migrator
+    restart: "on-failure"
+    command: alembic upgrade head
+    env_file:
+      - .env
+      - .env.docker
+    networks:
+      - app
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+
+  worker:
+    image: bot:latest
+    container_name: ${COMPOSE_PROJECT_NAME}-worker
+    command: celery -A app worker --loglevel=info
+    restart: always
+    volumes:
+      - .:/app
+    networks:
+      - app
+    env_file:
+      - .env
+      - .env.docker
+    depends_on:
+      - redis
+      - postgres
+      - bot
+      - migrator
+
+  beat:
+    image: bot:latest
+    container_name: ${COMPOSE_PROJECT_NAME}-beat
+    command: celery -A app beat --scheduler redbeat.RedBeatScheduler --loglevel=info
+    restart: always
+    env_file:
+      - .env
+      - .env.docker
+    networks:
+      - app
+    depends_on:
+      - redis
+      - postgres
+      - migrator
+    volumes:
+      - .:/app
+
+networks:
+  app:
+    driver: bridge
+
+volumes:
+  postgres-data: {}
+  redis-data: {}

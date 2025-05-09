@@ -1,36 +1,47 @@
+import logging
+
 from sqlalchemy.orm import Session
 from app.database.models.judge import Judge
 from sqlalchemy.exc import SQLAlchemyError
-import logging
 from app.database.repositories.exceptions import JudgeError
 
-class JudgeRepository:
+logger = logging.getLogger(__name__)
 
-    def __init__(self, session: Session, logger: logging.Logger):
-       self.session = session
-       self.logger = logger
+
+class JudgeRepository:
+    def __init__(self, session: Session):
+        self.session = session
 
     def create(self, name: str) -> Judge:
- 
         try:
             new_judge = Judge(name=name)
             self.session.add(new_judge)
             self.session.commit()
             return new_judge
-        
+
         except SQLAlchemyError as exc:
             self.session.rollback()
-            self.logger.error(f'Database error while creating judge: {exc}')
+            logger.error(f'Database error while creating judge: {exc}')
             raise JudgeError('Ошибка создания судьи')
-        
-    def get_by_name(self, judge_name: str) -> Judge | None:
 
+    def get_by_name(self, judge_name: str) -> Judge | None:
         try:
             judge = self.session.query(Judge).filter(Judge.name == judge_name).first()
             return judge
-        
+
         except SQLAlchemyError as exc:
             self.session.rollback()
-            self.logger.error(f'Database error while get judge by name: {exc}')
+            logger.error(f'Database error while get judge by name: {exc}')
             raise JudgeError('Ошибка получения судьи по ФИО')
 
+    def get_or_create(self, judge_name: str) -> Judge:
+        try:
+            judge = self.session.query(Judge).filter(Judge.name == judge_name).first()
+            if not judge:
+                judge = self.create(judge_name)
+
+            return judge
+        except SQLAlchemyError as exc:
+            self.session.rollback()
+            logger.error(f'Database error while get_or_create judge by name: {exc}')
+            raise JudgeError('Ошибка создания или получения судьи по ФИО')

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import BaseModel, field_validator
+from pydantic import AnyUrl, field_validator
 from pydantic_core.core_schema import ValidationInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -9,12 +9,16 @@ BASE_DIR = Path(__file__).parent.parent
 ENV_FILE = BASE_DIR / '.env'
 
 
-class DatabaseSettings(BaseSettings): 
-    model_config = SettingsConfigDict(
-        extra='ignore', 
-        env_file=ENV_FILE,
-        env_prefix='DB_'
-    )
+class CelerySettings(BaseSettings):
+    model_config = SettingsConfigDict(extra='ignore', env_file=ENV_FILE, env_prefix='CELERY_')
+
+    broker_url: AnyUrl = 'redis://localhost:6379/0'
+    backend_url: AnyUrl = 'redis://localhost:6379/1'
+    redbeat_redis_url: AnyUrl = 'redis://localhost:6379/2'
+
+
+class DatabaseSettings(BaseSettings):
+    model_config = SettingsConfigDict(extra='ignore', env_file=ENV_FILE, env_prefix='DB_')
 
     engine: str = 'postgresql+psycopg2'
     host: str = 'localhost'
@@ -46,28 +50,27 @@ class DatabaseSettings(BaseSettings):
         return url
 
 
-
-class TelegramBotSettings(BaseSettings): 
-    model_config = SettingsConfigDict(
-        extra='ignore', 
-        env_file=ENV_FILE,
-        env_prefix='TG_'
-    )
+class TelegramBotSettings(BaseSettings):
+    model_config = SettingsConfigDict(extra='ignore', env_file=ENV_FILE, env_prefix='TG_')
 
     bot_token: str
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        extra='ignore', 
+        extra='ignore',
         env_file=ENV_FILE,
     )
 
     project_name: str
     debug: bool
 
+    max_days_since_event_for_notification: int = 2
+    case_page_request_timeout_seconds: int = 20
+
     db: DatabaseSettings = DatabaseSettings()
     telegram_bot: TelegramBotSettings = TelegramBotSettings()
+    celery: CelerySettings = CelerySettings()
 
 
 settings = Settings()
